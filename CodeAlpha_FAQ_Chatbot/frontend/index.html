@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FAQGenie AI - Your Intelligent AI FAQ Assistant with Modern Glassmorphism Interface">
+    <title>FAQGenie AI - Your Intelligent AI FAQ Assistant</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Ambient Glow Effects -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <div class="app-container">
+        <!-- Main Chat Wrapper -->
+        <main class="chat-card glass-panel">
+            
+            <!-- Header Section -->
+            <header class="chat-header">
+                <div class="header-brand">
+                    <div class="logo-wrapper">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <span class="status-pulse-dot" id="headerStatusDot"></span>
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="brand-name">FAQGenie <span class="gradient-text">AI</span></h1>
+                        <p class="brand-tagline">Your Intelligent AI FAQ Assistant</p>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <div class="status-badge" id="statusBadge">
+                        <span class="status-dot"></span>
+                        <span class="status-text" id="statusText">Online</span>
+                    </div>
+
+                    <button class="icon-btn" id="openFaqModalBtn" title="Browse Knowledge Base" aria-label="Knowledge Base">
+                        <i class="fa-solid fa-book-open"></i>
+                    </button>
+
+                    <button class="icon-btn danger-hover" id="clearChatBtn" title="Clear Chat History" aria-label="Clear Chat">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Suggested Questions Bar -->
+            <section class="suggested-panel">
+                <div class="suggested-header">
+                    <span class="suggested-title"><i class="fa-solid fa-lightbulb"></i> Suggested Questions</span>
+                    <button class="text-btn" id="refreshSuggestionsBtn">
+                        <i class="fa-solid fa-arrows-rotate"></i> Shuffle
+                    </button>
+                </div>
+                <div class="suggested-chips" id="suggestedChips">
+                    <button class="chip-btn" data-question="How can I reset my password?">
+                        <i class="fa-solid fa-key"></i> How can I reset my password?
+                    </button>
+                    <button class="chip-btn" data-question="What are your working hours?">
+                        <i class="fa-solid fa-clock"></i> What are your working hours?
+                    </button>
+                    <button class="chip-btn" data-question="How do I contact support?">
+                        <i class="fa-solid fa-headset"></i> How do I contact support?
+                    </button>
+                    <button class="chip-btn" data-question="What subscription plans do you offer?">
+                        <i class="fa-solid fa-credit-card"></i> What subscription plans do you offer?
+                    </button>
+                </div>
+            </section>
+
+            <!-- Chat Window / Scrollable Messages area -->
+            <section class="chat-window" id="chatWindow" aria-live="polite">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Welcome AI Message -->
+                    <div class="message-row ai-row">
+                        <div class="avatar ai-avatar">
+                            <i class="fa-solid fa-bot"></i>
+                        </div>
+                        <div class="message-bubble ai-bubble">
+                            <div class="message-header">
+                                <span class="sender-name">FAQGenie AI</span>
+                                <span class="message-time">Just now</span>
+                            </div>
+                            <div class="message-content">
+                                Hello! 👋 Welcome to <strong>FAQGenie AI</strong>. I can help answer questions about account setup, billing, support hours, and system features.<br><br>
+                                Feel free to pick a question above or type your own question below!
+                            </div>
+                            <div class="message-actions">
+                                <button class="action-btn copy-btn" title="Copy response">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                                <button class="action-btn tts-btn" title="Listen to answer">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typing Animation Container -->
+                <div class="typing-indicator-row hidden" id="typingIndicator">
+                    <div class="avatar ai-avatar">
+                        <i class="fa-solid fa-bot"></i>
+                    </div>
+                    <div class="message-bubble ai-bubble typing-bubble">
+                        <span class="typing-text">FAQGenie is typing</span>
+                        <div class="typing-dots">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Message Input & Controls Bar -->
+            <footer class="chat-footer">
+                <form class="input-form" id="chatForm">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            class="chat-input" 
+                            placeholder="Ask FAQGenie anything... (e.g. How to reset password?)" 
+                            rows="1"
+                            maxlength="250"
+                            aria-label="Chat input message"></textarea>
+                        
+                        <div class="input-bottom-bar">
+                            <span class="char-counter" id="charCounter">0 / 250</span>
+                            
+                            <button type="submit" id="sendBtn" class="gradient-btn send-btn" disabled title="Send message" aria-label="Send Message">
+                                <span>Send</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Footer Tagline / Copyright -->
+                <div class="app-footer-bar">
+                    <span><i class="fa-solid fa-shield-halved"></i> Powered by FAQGenie AI</span>
+                    <span class="dot-separator">•</span>
+                    <span>Modern Glassmorphism UI</span>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- Clear Chat Confirmation Modal -->
+    <div class="modal-overlay hidden" id="confirmModal">
+        <div class="modal-card glass-panel">
+            <div class="modal-header">
+                <i class="fa-solid fa-circle-exclamation modal-icon warning"></i>
+                <h3>Clear Chat History?</h3>
+            </div>
+            <p class="modal-body">This action will delete all current conversation messages. You cannot undo this step.</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelClearBtn">Cancel</button>
+                <button class="btn btn-danger" id="confirmClearBtn">Clear Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Knowledge Base Drawer / Modal -->
+    <div class="modal-overlay hidden" id="faqModal">
+        <div class="modal-card glass-panel wide-modal">
+            <div class="modal-header justify-between">
+                <div class="flex-align-center gap-2">
+                    <i class="fa-solid fa-book-bookmark modal-icon glow"></i>
+                    <h3>FAQ Knowledge Base</h3>
+                </div>
+                <button class="icon-btn close-modal-btn" id="closeFaqModalBtn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="faqSearchInput" placeholder="Search FAQs by keywords..." class="search-input">
+            </div>
+            <div class="faq-categories-tabs" id="faqCategoryTabs">
+                <button class="tab-btn active" data-category="all">All</button>
+                <button class="tab-btn" data-category="account">Account</button>
+                <button class="tab-btn" data-category="billing">Billing</button>
+                <button class="tab-btn" data-category="support">Support</button>
+                <button class="tab-btn" data-category="general">General</button>
+            </div>
+            <div class="faq-accordion-list" id="faqAccordionList">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

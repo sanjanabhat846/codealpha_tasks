@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "question": "How can I reset my password?",
+    "answer": "Click on the Forgot Password link on the login page to reset your password.",
+    "category": "Account"
+  },
+  {
+    "id": 2,
+    "question": "What are your business operating hours?",
+    "answer": "Our customer support team is available Monday through Friday, 9:00 AM to 6:00 PM EST.",
+    "category": "General"
+  },
+  {
+    "id": 3,
+    "question": "What are your working hours?",
+    "answer": "Our AI Assistant is available 24/7. Human support operates Monday through Friday, 8:00 AM to 8:00 PM EST.",
+    "category": "General"
+  },
+  {
+    "id": 4,
+    "question": "How do I contact support?",
+    "answer": "You can contact our support team by emailing support@faqgenie.ai or calling +1 (800) 555-GENIE.",
+    "category": "Support"
+  },
+  {
+    "id": 5,
+    "question": "What subscription plans do you offer?",
+    "answer": "We offer Free, Pro ($19/month), and Enterprise tiers tailored to your business needs.",
+    "category": "Billing"
+  },
+  {
+    "id": 6,
+    "question": "What is your refund policy?",
+    "answer": "We offer a 14-day money-back guarantee for all paid plans. Contact billing@faqgenie.ai to initiate a refund.",
+    "category": "Billing"
+  },
+  {
+    "id": 7,
+    "question": "Is my data secure with FAQGenie AI?",
+    "answer": "Yes, all data is encrypted using AES-256 bit encryption and stored on SOC-2 compliant servers.",
+    "category": "Security"
+  },
+  {
+    "id": 8,
+    "question": "Can I integrate FAQGenie AI into my website?",
+    "answer": "Yes! You can embed FAQGenie AI using a single JavaScript script tag or integrate via our REST API.",
+    "category": "Technical"
+  },
+  {
+    "id": 9,
+    "question": "How do I delete my account?",
+    "answer": "To delete your account, navigate to Account Settings > Security and click 'Delete Account'.",
+    "category": "Account"
+  },
+  {
+    "id": 10,
+    "question": "Where can I find API documentation?",
+    "answer": "Complete REST API documentation is available at developer.faqgenie.ai/docs.",
+    "category": "Technical"
+  }
+]

@@ -62,4 +62,3 @@ Folder: `CodeAlpha_Object_Detection`
 
 **Sanjana Bhat**
 
-GitHub: https://github.com/sanjanabhat846

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VisionTrack AI - Real-Time AI Object Detection & Multi-Object Tracking Dashboard powered by YOLOv8 and OpenCV aesthetics.">
+  <title>VisionTrack AI | Real-Time Object Detection & Tracking</title>
+  
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Dashboard Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Floating Background Blobs for Glassmorphic Depth -->
+  <div class="blob-container" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Main Application Wrapper -->
+  <div class="app-wrapper">
+    
+    <!-- HEADER -->
+    <header class="app-header glass-card">
+      <div class="header-left">
+        <div class="logo-container">
+          <div class="logo-icon">
+            <i class="fa-solid fa-eye"></i>
+            <span class="logo-pulse"></span>
+          </div>
+          <div class="logo-text">
+            <h1 class="brand-title">VisionTrack <span class="gradient-text">AI</span></h1>
+            <p class="brand-tagline">Real-Time AI Object Detection & Multi-Object Tracking</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <nav class="header-nav">
+          <a href="#" class="nav-link active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+          <a href="#" class="nav-link" id="navWebcamLink"><i class="fa-solid fa-video"></i> Live Stream</a>
+          <a href="#" class="nav-link" id="navShortcutsLink"><i class="fa-solid fa-keyboard"></i> Shortcuts</a>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <div class="status-badge status-offline" id="statusBadge" aria-label="System status">
+          <span class="status-dot"></span>
+          <span id="statusText">Offline</span>
+        </div>
+
+        <div class="engine-badge glass-pill" title="AI Acceleration Engine">
+          <i class="fa-solid fa-bolt gradient-icon"></i>
+          <span>YOLOv8 Engine</span>
+        </div>
+
+        <button class="icon-btn glass-btn" id="shortcutsToggleBtn" aria-label="Keyboard Shortcuts" title="Keyboard Shortcuts (Ctrl+H)">
+          <i class="fa-solid fa-keyboard"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="dashboard-grid">
+      
+      <!-- LEFT PANEL: Upload & Source Controls -->
+      <aside class="panel left-panel glass-card" aria-label="Media Upload and Source Controls">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-cloud-arrow-up"></i> Media Source</h2>
+          <span class="badge-subtle">Inputs</span>
+        </div>
+
+        <!-- Drag & Drop Upload Zone -->
+        <div class="drop-zone" id="dropZone" tabindex="0" aria-label="Drag and drop media file here or click to browse">
+          <div class="drop-zone-content">
+            <div class="drop-icon-wrapper">
+              <i class="fa-solid fa-file-circle-plus"></i>
+            </div>
+            <p class="drop-title">Drag & Drop Media Here</p>
+            <p class="drop-subtitle">or browse files from your computer</p>
+            <div class="supported-formats">
+              <span class="fmt-tag">MP4</span>
+              <span class="fmt-tag">AVI</span>
+              <span class="fmt-tag">MOV</span>
+              <span class="fmt-tag">JPG</span>
+              <span class="fmt-tag">PNG</span>
+            </div>
+          </div>
+          <!-- Hidden inputs for custom triggers -->
+          <input type="file" id="imageInput" accept="image/jpeg, image/png" class="hidden-input" tabindex="-1">
+          <input type="file" id="videoInput" accept="video/mp4, video/avi, video/quicktime" class="hidden-input" tabindex="-1">
+        </div>
+
+        <!-- Source Upload Buttons -->
+        <div class="source-buttons-grid">
+          <button type="button" class="btn glass-btn-hover" id="uploadImageBtn" aria-label="Upload Image">
+            <i class="fa-solid fa-image"></i> Upload Image
+          </button>
+          <button type="button" class="btn glass-btn-hover" id="uploadVideoBtn" aria-label="Upload Video">
+            <i class="fa-solid fa-film"></i> Upload Video
+          </button>
+          <button type="button" class="btn glass-btn-hover" id="startWebcamBtn" aria-label="Start Webcam Stream">
+            <i class="fa-solid fa-webcam"></i> Start Webcam
+          </button>
+          <button type="button" class="btn glass-btn-hover btn-disabled" id="stopWebcamBtn" disabled aria-label="Stop Webcam Stream">
+            <i class="fa-solid fa-video-slash"></i> Stop Webcam
+          </button>
+        </div>
+
+        <!-- Selected File Metadata Card -->
+        <div class="file-info-card glass-card-nested hidden" id="fileInfoCard">
+          <div class="file-icon-box" id="fileTypeIcon">
+            <i class="fa-solid fa-file"></i>
+          </div>
+          <div class="file-details">
+            <p class="file-name" id="fileNameDisplay">No file selected</p>
+            <p class="file-meta" id="fileMetaDisplay">0 MB • Ready</p>
+          </div>
+          <button class="icon-btn-sm" id="clearFileBtn" title="Remove file" aria-label="Remove selected file">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Control Actions -->
+        <div class="controls-section">
+          <h3 class="section-subtitle"><i class="fa-solid fa-sliders"></i> Execution Controls</h3>
+          
+          <div class="action-buttons-stack">
+            <button type="button" class="btn btn-primary btn-gradient ripple" id="startDetectBtn" aria-label="Start AI Object Detection">
+              <i class="fa-solid fa-play"></i> Start Detection
+              <span class="btn-shortcut-hint">Ctrl+D</span>
+            </button>
+
+            <button type="button" class="btn btn-secondary btn-gradient-danger ripple btn-disabled" id="stopDetectBtn" disabled aria-label="Stop AI Object Detection">
+              <i class="fa-solid fa-square"></i> Stop Detection
+            </button>
+
+            <div class="btn-row">
+              <button type="button" class="btn glass-btn ripple" id="resetBtn" aria-label="Reset Dashboard">
+                <i class="fa-solid fa-rotate-left"></i> Reset
+                <span class="btn-shortcut-hint">Ctrl+R</span>
+              </button>
+              <button type="button" class="btn btn-accent btn-gradient-accent ripple" id="downloadBtn" aria-label="Download Detection Results">
+                <i class="fa-solid fa-download"></i> Download
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- CENTER PANEL: Detection Preview Window -->
+      <section class="panel center-panel glass-card" aria-label="Detection Preview Viewport">
+        <div class="panel-header">
+          <div class="panel-header-title">
+            <h2><i class="fa-solid fa-expand"></i> Detection Viewport</h2>
+            <span class="live-indicator-tag hidden" id="liveStreamTag"><span class="pulse-dot"></span> LIVE</span>
+          </div>
+          
+          <div class="viewport-actions">
+            <span class="resolution-tag" id="resolutionDisplay">1920x1080</span>
+            <button class="icon-btn glass-btn-sm" id="fullscreenBtn" aria-label="Toggle Fullscreen" title="Toggle Fullscreen">
+              <i class="fa-solid fa-expand"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Media & Detection Preview Container -->
+        <div class="preview-container" id="previewContainer">
+          
+          <!-- State 1: Placeholder when no media loaded -->
+          <div class="no-media-placeholder" id="noMediaPlaceholder">
+            <div class="radar-scan-wrapper">
+              <div class="radar-circle circle-1"></div>
+              <div class="radar-circle circle-2"></div>
+              <div class="radar-circle circle-3"></div>
+              <div class="radar-line"></div>
+              <i class="fa-solid fa-crosshairs radar-center-icon"></i>
+            </div>
+            <h3>No Media Loaded</h3>
+            <p>Upload an image, video, or enable webcam to initiate real-time AI object detection.</p>
+            <button class="btn btn-primary btn-gradient-sm ripple" id="placeholderUploadBtn">
+              <i class="fa-solid fa-upload"></i> Upload Media
+              <span class="btn-shortcut-hint">Ctrl+U</span>
+            </button>
+          </div>
+
+          <!-- Media Display Elements -->
+          <img id="imagePreview" class="media-element hidden" alt="Uploaded Image Preview">
+          <video id="videoPreview" class="media-element hidden" loop muted playsinline></video>
+          <canvas id="webcamCanvas" class="media-element hidden"></canvas>
+
+          <!-- Bounding Box Canvas Overlay for Detection Boxes -->
+          <canvas id="overlayCanvas" class="overlay-canvas hidden"></canvas>
+
+          <!-- Glass Loading Overlay -->
+          <div class="loading-overlay hidden" id="loadingOverlay" aria-live="assertive">
+            <div class="glass-spinner-wrapper">
+              <div class="glass-spinner"></div>
+              <div class="spinner-inner-icon">
+                <i class="fa-solid fa-brain"></i>
+              </div>
+            </div>
+            <p class="loading-text" id="loadingText">Initializing YOLOv8 Engine...</p>
+            <span class="loading-subtext">Optimizing neural network weights for inference</span>
+          </div>
+
+          <!-- Overlay Dynamic Stats Tag -->
+          <div class="overlay-stats-tag hidden" id="overlayStatsTag">
+            <div class="overlay-stat"><i class="fa-solid fa-tachometer-alt"></i> <span id="tagFps">60</span> FPS</div>
+            <div class="overlay-stat"><i class="fa-solid fa-boxes-stacked"></i> <span id="tagObjects">0</span> Objects</div>
+            <div class="overlay-stat"><i class="fa-solid fa-bullseye"></i> <span id="tagConf">96%</span> Conf</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: Detection Statistics -->
+      <aside class="panel right-panel glass-card" aria-label="Real-time Detection Statistics">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-chart-pie"></i> Live Analytics</h2>
+          <span class="badge-subtle">Real-time</span>
+        </div>
+
+        <div class="stats-grid">
+          
+          <!-- Stat Card 1: Total Objects -->
+          <div class="stat-card glass-card-nested glow-primary">
+            <div class="stat-icon-wrapper primary-glow">
+              <i class="fa-solid fa-cubes"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Objects Detected</span>
+              <span class="stat-value" id="statObjectsCount">0</span>
+            </div>
+            <div class="stat-trend positive">
+              <i class="fa-solid fa-arrow-trend-up"></i> Dynamic
+            </div>
+          </div>
+
+          <!-- Stat Card 2: People -->
+          <div class="stat-card glass-card-nested glow-secondary">
+            <div class="stat-icon-wrapper secondary-glow">
+              <i class="fa-solid fa-user-group"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">People</span>
+              <span class="stat-value" id="statPeopleCount">0</span>
+            </div>
+            <div class="stat-tag">Class #0</div>
+          </div>
+
+          <!-- Stat Card 3: Vehicles -->
+          <div class="stat-card glass-card-nested glow-accent">
+            <div class="stat-icon-wrapper accent-glow">
+              <i class="fa-solid fa-car"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Vehicles</span>
+              <span class="stat-value" id="statVehiclesCount">0</span>
+            </div>
+            <div class="stat-tag">Class #2/3/7</div>
+          </div>
+
+          <!-- Stat Card 4: Animals -->
+          <div class="stat-card glass-card-nested glow-emerald">
+            <div class="stat-icon-wrapper emerald-glow">
+              <i class="fa-solid fa-paw"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Animals</span>
+              <span class="stat-value" id="statAnimalsCount">0</span>
+            </div>
+            <div class="stat-tag">Class #15-23</div>
+          </div>
+
+          <!-- Stat Card 5: Avg Confidence -->
+          <div class="stat-card glass-card-nested glow-indigo">
+            <div class="stat-icon-wrapper indigo-glow">
+              <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Confidence</span>
+              <span class="stat-value" id="statConfidence">0%</span>
+            </div>
+            <div class="confidence-bar-wrapper">
+              <div class="confidence-bar-fill" id="statConfidenceBar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Stat Card 6: FPS Meter -->
+          <div class="stat-card glass-card-nested glow-purple">
+            <div class="stat-icon-wrapper purple-glow">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">FPS</span>
+              <span class="stat-value" id="statFps">0</span>
+            </div>
+            <div class="stat-tag">Target: 60</div>
+          </div>
+
+          <!-- Stat Card 7: Tracking Status -->
+          <div class="stat-card glass-card-nested glow-pink full-width">
+            <div class="stat-icon-wrapper pink-glow">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Tracking Status</span>
+              <span class="stat-value-sm" id="statTrackingStatus">Idle</span>
+            </div>
+            <div class="tracking-mode-badge" id="trackingModeBadge">ByteTrack</div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- BOTTOM PANEL: Scrollable Detection Results Table -->
+      <section class="panel bottom-panel glass-card full-span" aria-label="Detection Results Table">
+        <div class="panel-header">
+          <div class="table-header-left">
+            <h2><i class="fa-solid fa-table-list"></i> Detection Results Log</h2>
+            <span class="badge-subtle" id="tableCountBadge">0 Records</span>
+          </div>
+
+          <div class="table-actions">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="tableSearchInput" placeholder="Filter by object or ID..." aria-label="Search detection results table">
+            </div>
+            <button class="btn glass-btn-sm" id="clearTableBtn" title="Clear log entries">
+              <i class="fa-solid fa-trash-can"></i> Clear Log
+            </button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="results-table" id="resultsTable">
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-fingerprint"></i> Tracking ID</th>
+                <th><i class="fa-solid fa-cube"></i> Object Class</th>
+                <th><i class="fa-solid fa-percent"></i> Confidence</th>
+                <th><i class="fa-solid fa-signal"></i> Status</th>
+                <th><i class="fa-solid fa-clock"></i> Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="resultsTableBody">
+              <!-- Empty state default row -->
+              <tr id="emptyTableTr">
+                <td colspan="5" class="empty-table-cell">
+                  <div class="empty-table-content">
+                    <i class="fa-solid fa-inbox"></i>
+                    <p>No detection records generated yet. Start detection to log objects.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer glass-card">
+      <div class="footer-left">
+        <span class="footer-brand"><i class="fa-solid fa-eye"></i> VisionTrack AI</span>
+        <span class="footer-divider">•</span>
+        <span class="footer-tagline">Real-Time Object Detection & Multi-Object Tracking</span>
+      </div>
+      <div class="footer-center">
+        <span>Powered by <strong class="gradient-text">YOLOv8 + OpenCV</strong> Architecture</span>
+      </div>
+      <div class="footer-right">
+        <span>&copy; 2026 VisionTrack AI. All rights reserved.</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- KEYBOARD SHORTCUTS MODAL -->
+  <div id="shortcutsModal" class="modal-backdrop hidden" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3 id="modalTitle"><i class="fa-solid fa-keyboard"></i> Keyboard Shortcuts</h3>
+        <button class="icon-btn" id="closeModalBtn" aria-label="Close shortcuts modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Upload Media File</span>
+          <kbd class="key-badge">Ctrl + U</kbd>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Start / Toggle Detection</span>
+          <kbd class="key-badge">Ctrl + D</kbd>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Reset Dashboard</span>
+          <kbd class="key-badge">Ctrl + R</kbd>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-desc">Close Shortcuts Modal</span>
+          <kbd class="key-badge">Esc</kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
